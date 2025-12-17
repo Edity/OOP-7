@@ -265,9 +265,8 @@ void printThread(set_t &npcs)
                     std::cout << "\033[2J\033[1;1H";
                 #endif
 
-                std::cout << "         Игровое поле 100x100       \n";
-                std::cout << "Время: " << gameSeconds.load() << "/" << GAME_LENGTH << " сек\n";
-                std::cout << "Легенда: K-Рыцарь, E-Эльф, D-Дракон\n\n";
+                std::cout << gameSeconds.load() << "/" << GAME_LENGTH << " сек\n";
+                std::cout << "K-Рыцарь, E-Эльф, D-Дракон\n\n";
                 
                 for (int j = 0; j < grid; ++j) {
                     for (int i = 0; i < grid; ++i) {
@@ -293,8 +292,7 @@ void printThread(set_t &npcs)
                     }
                 }
                 
-                std::cout << "\nЖивых: " << alive_count << " (K:" << knights << " E:" << elves << " D:" << dragons << ")\n";
-                std::cout << "=====================================\n";
+                std::cout << "\nЖиво: "<< alive_count << " (K:" << knights << " E:" << elves << " D:" << dragons << ")\n";
             }
         }
         
@@ -318,7 +316,6 @@ int main()
 
     {
         std::lock_guard<std::shared_mutex> lock(npcMutex);
-        std::cout << "Генерация NPC..." << std::endl;
         for (size_t i = 0; i < NPC_COUNT; ++i) {
             int type = std::rand() % 3 + 1;
             int x = std::rand() % MAP_SIZE;
@@ -329,10 +326,9 @@ int main()
                 npcs.insert(npc);
             }
         }
-        std::cout << "Создано " << npcs.size() << " NPC." << std::endl;
     }
 
-    std::cout << "Начало симуляции..." << std::endl;
+    std::cout << "Симуляция" << std::endl;
     std::thread moveThr(moveThread, std::ref(npcs));
     std::thread battleThr(battleThread);
     std::thread printThr(printThread, std::ref(npcs));
@@ -352,7 +348,7 @@ int main()
         printThr.join();
     }
 
-    std::cout << "\n\nСимуляция завершена. Список выживших:\n" << std::endl;
+    std::cout << "\n\nСимуляция завершена. Живые:\n" << std::endl;
 
     std::shared_lock<std::shared_mutex> lock(npcMutex);
     for (const auto &npc : npcs) {
